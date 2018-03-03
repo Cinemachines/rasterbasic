@@ -1,0 +1,75 @@
+<body bgcolor="black">
+<center>
+<canvas id="ctx" width="600" height="450" style="width:800px; height: 600px; margin: 6px; border: 1px solid #000;"></canvas>
+</center>
+
+<script type="text/javascript">
+var canvas = document.getElementById("ctx");
+var ctx = canvas.getContext("2d");
+var imgmap = ctx.createImageData(canvas.width, canvas.height);
+imgmap.cutedges = true;
+var i,j;
+</script>
+<script type="text/javascript" src="imgmap.js"></script>
+<script type="text/javascript" src="osc.js"></script>
+<script type="text/javascript" src="hsl2hex.js"></script>
+<script type="text/javascript">
+imgmap.resetBitmap(); // to make canvas opaque
+
+var myloop;
+var t=0;
+var animate;
+var x,y;
+var fps = 15;
+
+function rgb2imgmap(x, y, r, g, b){
+	imgmap.setXYr(x, y, r);
+	imgmap.setXYg(x, y, g);
+	imgmap.setXYb(x, y, b);
+}
+
+function hsl2imgmap(x, y, h, s, l){
+	var col = hsl2hex(h, s, l);
+	imgmap.setXYr(x, y, col[0]);
+	imgmap.setXYg(x, y, col[1]);
+	imgmap.setXYb(x, y, col[2]);
+}
+
+var runBit = function(){
+	var r,g,b;
+//	r = Math.pow(x, Math.abs(100*tri(t)))%255;
+//	g = Math.pow(x*y*t,y/5)%255;
+//	b = Math.pow(y*sin(x*t), sin(y))%255;
+//	r = 200+(200*tri(t))-x * sin((4*tri(100+t)*y)+t);
+//	g = 200-(y/3) * tri(x+t);
+	r = 200 - 400*sin(y-(t*4))*tri((t+x));
+	g = 200 - 480*sin(y-(t*5))*tri((t+x)*5);
+//	b = t-(x*y)/100;
+	b = 100 * sin(x+(t*10)) + (400*tri(t*10)) * cos(y) * sin(y);
+	rgb2imgmap(x, y, r, g, b);
+//	hsl2imgmap(x, y, ((x+t)/100)%1, 0.9, 0.5);
+}
+
+function render(){
+	t++;
+	for(y = 0; y < canvas.height; y++){
+		for(x = 0; x < canvas.width; x++){
+			runBit();
+		}
+	}
+	ctx.putImageData(imgmap, 0, 0);
+}
+
+function stop(){
+	clearInterval(myloop);
+	animate = false;
+}
+
+function start(){
+	myloop = setInterval(render, 1000/fps);
+	animate = true;
+}
+
+start();
+
+</script>
